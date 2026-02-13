@@ -1,0 +1,15 @@
+# IDE Docs
+.vscode
+.kiro
+.cline
+.roo
+
+# Documentation (keep local)
+*.md
+!README.md
+
+# Environment
+node_modules
+venv 
+bin
+obj
