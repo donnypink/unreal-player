@@ -1,6 +1,6 @@
 {
-    "tracking_exe": "C:\\Path\\To\\UE_Tracking\\MetahumanTracker.exe",
-    "idle_exe": "C:\\Path\\To\\UE_Idle\\IdleVersion.exe",
+    "tracking_exe": "projects/idle/can.exe",
+    "idle_exe": "projects/tracking/mediapipe.exe",
     "camera_index": 0,
     "motion_threshold": 30,
     "detection_delay_frames": 5,
