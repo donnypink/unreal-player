@@ -1,9 +1,9 @@
 {
-    "tracking_exe": "projects/idle/can.exe",
-    "idle_exe": "projects/tracking/mediapipe.exe",
+    "tracking_exe": "projects/tracking/mediapipe.exe",
+    "idle_exe": "projects/idle/can.exe",
     "camera_index": 0,
-    "motion_threshold": 30,
-    "detection_delay_frames": 5,
+    "face_detection_confidence": 0.5,
+    "detection_threshold_seconds": 3.0,
     "tracking_run_seconds": 30,
     "idle_run_seconds": 60
 }
