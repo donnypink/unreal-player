@@ -13,28 +13,18 @@ class TestProgramRunner:
         runner = ProgramRunner()
         
         with patch('os.path.exists', return_value=False):
-            result = runner.run("/fake/path.exe", "test", 30)
+            result = runner.run("/fake/path.exe", "test")
         
         assert result is False
 
     def test_returns_true_on_success(self):
-        """Returns True when program runs successfully."""
+        """Returns True when program runs and exits."""
         runner = ProgramRunner()
         
         with patch('os.path.exists', return_value=True):
             with patch('subprocess.run') as mock_run:
                 mock_run.return_value = MagicMock(returncode=0)
-                result = runner.run("/real/path.exe", "test", 30)
-        
-        assert result is True
-
-    def test_returns_true_on_timeout(self):
-        """Returns True when program times out (expected behavior)."""
-        runner = ProgramRunner()
-        
-        with patch('os.path.exists', return_value=True):
-            with patch('subprocess.run', side_effect=subprocess.TimeoutExpired("cmd", 30)):
-                result = runner.run("/real/path.exe", "test", 30)
+                result = runner.run("/real/path.exe", "test")
         
         assert result is True
 
@@ -44,6 +34,19 @@ class TestProgramRunner:
         
         with patch('os.path.exists', return_value=True):
             with patch('subprocess.run', side_effect=Exception("Failed")):
-                result = runner.run("/real/path.exe", "test", 30)
+                result = runner.run("/real/path.exe", "test")
         
         assert result is False
+
+    def test_runs_without_timeout(self):
+        """Runs program without timeout (waits for manual close)."""
+        runner = ProgramRunner()
+        
+        with patch('os.path.exists', return_value=True):
+            with patch('subprocess.run') as mock_run:
+                mock_run.return_value = MagicMock(returncode=0)
+                runner.run("/real/path.exe", "test")
+                
+                # Verify no timeout parameter passed
+                call_args = mock_run.call_args
+                assert 'timeout' not in call_args.kwargs

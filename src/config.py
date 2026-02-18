@@ -9,9 +9,7 @@ class Config:
     DEFAULTS = {
         "camera_index": 0,
         "face_detection_confidence": 0.5,
-        "detection_threshold_seconds": 3.0,
-        "tracking_run_seconds": 30,
-        "idle_run_seconds": 60
+        "detection_threshold_seconds": 3.0
     }
     
     def __init__(self, config_path: str = "config.json"):
@@ -46,11 +44,3 @@ class Config:
     @property
     def detection_threshold_seconds(self) -> float:
         return self.get("detection_threshold_seconds")
-    
-    @property
-    def tracking_run_seconds(self) -> int:
-        return self.get("tracking_run_seconds")
-    
-    @property
-    def idle_run_seconds(self) -> int:
-        return self.get("idle_run_seconds")

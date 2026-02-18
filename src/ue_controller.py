@@ -1,6 +1,8 @@
 """
 UE Controller - Face Detection Program
-Switches between two Unreal Engine executables based on face detection
+Switches between two Unreal Engine executables based on face detection.
+Idle runs continuously until face detected, then tracking launches.
+Tracking runs until manually closed, then returns to idle.
 """
 import time
 import sys
@@ -35,45 +37,91 @@ class UEController:
         print(f"Tracking EXE: {self.config.tracking_exe}")
         print(f"Idle EXE: {self.config.idle_exe}")
         print(f"Face detection threshold: {self.config.detection_threshold_seconds}s")
-        print(f"Tracking run time: {self.config.tracking_run_seconds} seconds")
-        print(f"Idle run time: {self.config.idle_run_seconds} seconds")
         print("=" * 50)
-        print("\nIMPORTANT: Your UE programs must be designed to run briefly")
-        print("and exit automatically. The controller waits for the program")
-        print("to finish before checking the camera.\n")
+        print("\nFlow: IDLE → [face detected] → TRACKING → [manual close] → IDLE")
+        print("Idle runs until face detected. Tracking runs until manually closed.\n")
     
-    def _get_exe_and_duration(self, mode: str) -> tuple:
-        """Get executable path and duration for a mode."""
+    def _get_exe_path(self, mode: str) -> str:
+        """Get executable path for a mode."""
         if mode == "tracking":
-            return self.config.tracking_exe, self.config.tracking_run_seconds
-        return self.config.idle_exe, self.config.idle_run_seconds
+            return self.config.tracking_exe
+        return self.config.idle_exe
     
-    def _decide_next_mode(self) -> str:
-        """Check camera and decide next mode."""
+    def _check_face_detected(self) -> bool:
+        """Check camera for face detection."""
         print("[INFO] Checking camera for faces...")
         face_found = self.camera_handler.check_face()
-        return self.mode_decider.update(face_found)
+        result = self.mode_decider.update(face_found)
+        print(f"[RESULT] Mode decision: {result}")
+        return result == "tracking"
     
     def run(self):
-        """Main loop: run programs briefly, then check camera."""
+        """Main loop: idle runs, face detected → tracking, tracking closed → idle."""
         self._print_banner()
-        
-        recommended_mode = "idle"
         
         try:
             while True:
-                exe_path, duration = self._get_exe_and_duration(recommended_mode)
+                # Always start with idle
+                idle_path = self._get_exe_path("idle")
+                self.current_mode = "idle"
                 
-                # Run the UE program (blocks until it exits)
-                self.program_runner.run(exe_path, recommended_mode, duration)
-                self.current_mode = recommended_mode
+                # Run idle in background and continuously check for faces
+                print("[INFO] Starting idle mode (checking for faces)...")
                 
-                # Decide next mode
-                recommended_mode = self._decide_next_mode()
-                time.sleep(1)
+                # Launch idle program (non-blocking check loop)
+                import subprocess
+                import os
+                
+                if not os.path.exists(idle_path):
+                    print(f"[ERROR] Idle EXE not found: {idle_path}")
+                    time.sleep(5)
+                    continue
+                
+                # Start idle program
+                idle_process = subprocess.Popen(
+                    [idle_path],
+                    creationflags=subprocess.CREATE_NEW_CONSOLE
+                )
+                print(f"[INFO] Idle program started (PID: {idle_process.pid})")
+                
+                # While idle is running, check for faces
+                face_detected = False
+                while idle_process.poll() is None:  # While idle is still running
+                    face_detected = self._check_face_detected()
+                    if face_detected:
+                        print("[INFO] Face detected! Switching to tracking...")
+                        break
+                    time.sleep(0.5)  # Check every 0.5 seconds
+                
+                # If idle exited on its own, restart it
+                if idle_process.poll() is not None and not face_detected:
+                    print("[INFO] Idle program exited, restarting...")
+                    time.sleep(1)
+                    continue
+                
+                # Face detected - terminate idle and launch tracking
+                if face_detected:
+                    print("[INFO] Stopping idle program...")
+                    idle_process.terminate()
+                    try:
+                        idle_process.wait(timeout=5)
+                    except:
+                        idle_process.kill()
+                    
+                    # Launch tracking
+                    tracking_path = self._get_exe_path("tracking")
+                    self.current_mode = "tracking"
+                    self.program_runner.run(tracking_path, "tracking")
+                    
+                    # Tracking closed - reset decider and continue to idle
+                    print("[INFO] Tracking closed, returning to idle...")
+                    self.mode_decider.reset()
+                    time.sleep(1)
                 
         except KeyboardInterrupt:
             print("\n[INFO] Shutting down...")
+            if hasattr(self, 'idle_process') and self.idle_process:
+                self.idle_process.terminate()
         except Exception as e:
             print(f"[ERROR] {e}")
 

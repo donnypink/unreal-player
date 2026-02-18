@@ -45,27 +45,29 @@ The codebase follows **SOLID principles**:
 
 ## How It Works
 
-This program uses **TIME-BASED HANDOFF** to solve the single camera problem:
+The program follows this flow:
 
 ```
-[Controller] → Launches tracking program → Runs for 30 seconds → Exits
-[Controller] → Opens camera, checks for faces → No face detected
-[Controller] → Launches idle program → Runs for 60 seconds → Exits  
-[Controller] → Opens camera, checks for faces → Face detected!
-[Controller] → Launches tracking program → Runs for 30 seconds → Exits
-...continues loop
+┌─────────┐     face detected      ┌───────────┐
+│  IDLE   │ ─────────────────────→ │ TRACKING  │
+│  runs   │                        │   runs    │
+│continuously│ ←────────────────── │ until     │
+└─────────┘    manually closed     └───────────┘
 ```
 
-**Key point:** Your UE programs must be designed to run briefly and exit automatically. The controller waits for the program to finish before checking the camera.
+**Flow:**
+1. **Idle** program launches and runs continuously
+2. Camera checks for faces every 0.5 seconds
+3. When face detected for `detection_threshold_seconds` → **Tracking** launches
+4. Idle is terminated, Tracking runs until **manually closed**
+5. After Tracking closes → back to **Idle**
+6. Loop continues
 
 ### Face Detection Logic
 
-The controller uses **time-based thresholds** (not frame counts):
-
-- **Switch to tracking**: Face must be present for `detection_threshold_seconds` continuously
-- **Switch to idle**: Face must be absent for `detection_threshold_seconds` continuously
-
-This prevents flickering between modes when faces appear/disappear briefly.
+- **Switch to tracking**: Face must be present for `detection_threshold_seconds` continuously (default: 3.0s)
+- **Return to idle**: Tracking runs until user manually closes it
+- This prevents flickering between modes when faces appear/disappear briefly
 
 ## Setup
 
@@ -83,9 +85,7 @@ Update the paths to your Unreal Engine executables:
     "idle_exe": "projects/idle/can.exe",
     "camera_index": 0,
     "face_detection_confidence": 0.5,
-    "detection_threshold_seconds": 3.0,
-    "tracking_run_seconds": 30,
-    "idle_run_seconds": 60
+    "detection_threshold_seconds": 3.0
 }
 ```
 
@@ -97,9 +97,7 @@ Update the paths to your Unreal Engine executables:
 | `idle_exe` | Path to UE program when no face | (required) |
 | `camera_index` | Which camera to use (0 = default) | 0 |
 | `face_detection_confidence` | Face detection sensitivity (0.0-1.0) | 0.5 |
-| `detection_threshold_seconds` | Seconds of continuous face presence/absence before switching | 3.0 |
-| `tracking_run_seconds` | How long to run tracking program | 30 |
-| `idle_run_seconds` | How long to run idle program | 60 |
+| `detection_threshold_seconds` | Seconds of continuous face presence before switching to tracking | 3.0 |
 
 ## Run the Program
 
@@ -130,35 +128,33 @@ pytest tests/test_program_runner.py -v
 
 ## Important - UE Program Requirements
 
-Your Unreal Engine programs MUST be designed to:
-- **Run briefly** (e.g., 10-60 seconds)
-- **Exit automatically** when done
-- NOT run indefinitely
+Your Unreal Engine programs should be designed as follows:
 
-The controller waits for your program to exit before it can check the camera again.
+### Idle Program
+- Runs continuously in the background
+- Should **NOT** use the camera (controller owns camera access)
+- Should be lightweight
 
-### Example UE Logic:
-```
-On BeginPlay:
-    Do your metahuman tracking for X seconds
-    Save results if needed
-    ExecuteConsoleCommand("quit")  // Exit the program
-```
+### Tracking Program
+- Runs when a face is detected
+- **Can** use the camera for metahuman tracking
+- Must be **manually closed** by user when done
+- When closed, controller automatically returns to idle
 
 ## Troubleshooting
 
 ### "Camera already in use" error
-- Your UE program is not exiting properly
-- Make sure your UE programs call "quit" or exit after their runtime
+- Make sure idle program doesn't access the camera
+- Only tracking program should use camera
 
-### Programs never switch
-- Increase `tracking_run_seconds` to give more time
+### Programs never switch to tracking
 - Lower `face_detection_confidence` to make detection more sensitive
 - Lower `detection_threshold_seconds` to switch faster
+- Ensure good lighting for face detection
 
 ### Too much switching
 - Increase `detection_threshold_seconds` for more stability
-- Increase `idle_run_seconds` to run idle longer between checks
+- Adjust camera position for better face visibility
 
 ## Dependencies
 

@@ -18,9 +18,7 @@ def test_config():
         "idle_exe": "C:/test/idle.exe",
         "camera_index": 0,
         "face_detection_confidence": 0.5,
-        "detection_threshold_seconds": 3.0,
-        "tracking_run_seconds": 30,
-        "idle_run_seconds": 60
+        "detection_threshold_seconds": 3.0
     }
 
 
