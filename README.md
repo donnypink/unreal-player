@@ -1,6 +1,6 @@
 # UE Controller - Face Detection Program
 
-A Python program that monitors a camera and switches between two Unreal Engine executables based on face detection.
+A Python program that monitors a camera and launches a tracking Unreal Engine executable when a face is detected. The idle program runs continuously in the background.
 
 ## Project Structure
 
@@ -14,9 +14,9 @@ A Python program that monitors a camera and switches between two Unreal Engine e
 │   ├── program_runner.py     # External program execution
 │   └── camera_handler.py     # Camera access management
 ├── projects/
-│   ├── idle/                 # Idle mode UE program
+│   ├── idle/                 # Idle mode UE program (runs continuously)
 │   │   └── can.exe
-│   └── tracking/             # Tracking mode UE program
+│   └── tracking/             # Tracking mode UE program (launched on face detect)
 │       └── mediapipe.exe
 ├── tests/
 │   ├── conftest.py           # Shared test fixtures
@@ -48,26 +48,33 @@ The codebase follows **SOLID principles**:
 The program follows this flow:
 
 ```
-┌─────────┐     face detected      ┌───────────┐
-│  IDLE   │ ─────────────────────→ │ TRACKING  │
-│  runs   │                        │   runs    │
-│continuously│ ←────────────────── │ until     │
-└─────────┘    manually closed     └───────────┘
+[IDLE] ────────────────────────────────────────────────
+  │                                                    │
+  │ runs continuously in background                  │
+  │                                                    │
+  ↓ face detected for threshold seconds               │
+[TRACKING] launches ────────────────────────────────→ │
+  │ runs until manually closed                         │
+  │                                                    │
+  ↓ user closes tracking                               │
+  └────────────────────────────────────────────────────┘
+       (IDLE was running all along, continues)
 ```
 
 **Flow:**
-1. **Idle** program launches and runs continuously
+1. **Idle** program launches and runs **continuously** in the background
 2. Camera checks for faces every 0.5 seconds
 3. When face detected for `detection_threshold_seconds` → **Tracking** launches
-4. Idle is terminated, Tracking runs until **manually closed**
-5. After Tracking closes → back to **Idle**
-6. Loop continues
+4. **Idle keeps running** (not stopped)
+5. Tracking runs until **manually closed** by user
+6. After Tracking closes → back to monitoring (Idle still running)
+7. Loop continues
 
 ### Face Detection Logic
 
-- **Switch to tracking**: Face must be present for `detection_threshold_seconds` continuously (default: 3.0s)
-- **Return to idle**: Tracking runs until user manually closes it
-- This prevents flickering between modes when faces appear/disappear briefly
+- **Launch tracking**: Face must be present for `detection_threshold_seconds` continuously (default: 3.0s)
+- **Return to monitoring**: Tracking runs until user manually closes it
+- This prevents flickering when faces appear/disappear briefly
 
 ## Setup
 
@@ -93,11 +100,11 @@ Update the paths to your Unreal Engine executables:
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| `tracking_exe` | Path to UE program when face detected | (required) |
-| `idle_exe` | Path to UE program when no face | (required) |
+| `tracking_exe` | Path to UE program launched when face detected | (required) |
+| `idle_exe` | Path to UE program that runs continuously | (required) |
 | `camera_index` | Which camera to use (0 = default) | 0 |
 | `face_detection_confidence` | Face detection sensitivity (0.0-1.0) | 0.5 |
-| `detection_threshold_seconds` | Seconds of continuous face presence before switching to tracking | 3.0 |
+| `detection_threshold_seconds` | Seconds of continuous face presence before launching tracking | 3.0 |
 
 ## Run the Program
 
@@ -131,15 +138,16 @@ pytest tests/test_program_runner.py -v
 Your Unreal Engine programs should be designed as follows:
 
 ### Idle Program
-- Runs continuously in the background
+- Runs **continuously** in the background (never exits)
 - Should **NOT** use the camera (controller owns camera access)
 - Should be lightweight
+- Will be restarted if it crashes
 
 ### Tracking Program
-- Runs when a face is detected
+- Launched when a face is detected
 - **Can** use the camera for metahuman tracking
 - Must be **manually closed** by user when done
-- When closed, controller automatically returns to idle
+- When closed, controller continues monitoring (idle still running)
 
 ## Troubleshooting
 
@@ -149,12 +157,16 @@ Your Unreal Engine programs should be designed as follows:
 
 ### Programs never switch to tracking
 - Lower `face_detection_confidence` to make detection more sensitive
-- Lower `detection_threshold_seconds` to switch faster
+- Lower `detection_threshold_seconds` to launch faster
 - Ensure good lighting for face detection
 
 ### Too much switching
 - Increase `detection_threshold_seconds` for more stability
 - Adjust camera position for better face visibility
+
+### Idle program crashes
+- Controller will automatically restart idle if it exits
+- Check idle program logs for errors
 
 ## Dependencies
 
