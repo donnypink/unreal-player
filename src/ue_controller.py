@@ -2,7 +2,7 @@
 UE Controller - Face Detection Program
 Idle runs continuously in background.
 Camera stays open for continuous face detection.
-Tracking launches when face detected (camera released, windows minimized, tracking fullscreen).
+Tracking launches when face detected (camera released, tracking fullscreen foreground).
 Camera reopened after tracking closes.
 """
 import time
@@ -44,10 +44,10 @@ class UEController:
         print(f"Idle EXE: {self.config.idle_exe}")
         print(f"Face detection threshold: {self.config.detection_threshold_seconds}s")
         print("=" * 50)
-        print("\nFlow: IDLE runs continuously")
+        print("\nFlow: IDLE runs continuously (background)")
         print("      CAMERA stays open for face detection")
         print("      ↓ face detected")
-        print("      WINDOWS minimized → CAMERA released → TRACKING fullscreen")
+        print("      CAMERA released → TRACKING fullscreen (foreground)")
         print("      ↓ tracking closed")
         print("      CAMERA reopened → back to monitoring\n")
     
@@ -61,10 +61,10 @@ class UEController:
         
         try:
             print(f"[INFO] Starting idle program (background)...")
-            # Start minimized/in background
+            # Start in background (no window)
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            startupinfo.wShowWindow = 7  # SW_SHOWMINNOACTIVE - minimized, not active
+            startupinfo.wShowWindow = 0  # SW_HIDE - hidden
             
             self._idle_process = subprocess.Popen(
                 [idle_path],
@@ -96,7 +96,7 @@ class UEController:
         return result == "tracking"
     
     def _run_tracking(self):
-        """Run tracking program in fullscreen after minimizing windows."""
+        """Run tracking program in fullscreen foreground."""
         tracking_path = self.config.tracking_exe
         
         if not os.path.exists(tracking_path):
@@ -104,12 +104,9 @@ class UEController:
             return
         
         self._tracking_running = True
-        print(f"[INFO] Preparing to launch tracking...")
+        print(f"[INFO] Launching tracking in fullscreen...")
         
-        # Minimize all windows
-        self.window_manager.minimize_all_windows()
-        
-        # Launch tracking in fullscreen
+        # Launch tracking in fullscreen (foreground)
         self.window_manager.launch_fullscreen(tracking_path, "tracking")
         
         print("[INFO] Tracking closed")
@@ -144,7 +141,7 @@ class UEController:
                     print("[INFO] Releasing camera for tracking...")
                     self.camera_handler.release()
                     
-                    # Launch tracking (minimizes windows, launches fullscreen)
+                    # Launch tracking (fullscreen foreground)
                     self._run_tracking()
                     
                     # Reopen camera for continued monitoring

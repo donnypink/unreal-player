@@ -2,7 +2,8 @@
 import subprocess
 import time
 import os
-from ctypes import windll, Structure, c_long, byref
+import ctypes
+from ctypes import windll
 
 
 class WindowManager:
@@ -10,33 +11,9 @@ class WindowManager:
     
     def __init__(self):
         self.user32 = windll.user32
-        self.kernel32 = windll.kernel32
-    
-    def minimize_all_windows(self):
-        """Minimize all visible windows."""
-        try:
-            print("[INFO] Minimizing all windows...")
-            
-            # EnumWindows callback
-            def enum_windows_callback(hwnd, extra):
-                if self.user32.IsWindowVisible(hwnd):
-                    # Minimize the window
-                    self.user32.ShowWindow(hwnd, 6)  # SW_MINIMIZE = 6
-                return True
-            
-            # Enumerate all windows and minimize visible ones
-            EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)
-            callback = EnumWindowsProc(enum_windows_callback)
-            self.user32.EnumWindows(callback, 0)
-            
-            time.sleep(0.5)  # Give windows time to minimize
-            print("[INFO] All windows minimized")
-            
-        except Exception as e:
-            print(f"[WARN] Could not minimize windows: {e}")
     
     def launch_fullscreen(self, exe_path: str, mode: str) -> bool:
-        """Launch a program and make it fullscreen."""
+        """Launch a program and make it fullscreen in foreground."""
         if not os.path.exists(exe_path):
             print(f"[ERROR] EXE not found: {exe_path}")
             return False
@@ -59,7 +36,7 @@ class WindowManager:
                 # Bring to front and maximize (fullscreen)
                 self.user32.ShowWindow(hwnd, 3)  # SW_MAXIMIZE = 3
                 self.user32.SetForegroundWindow(hwnd)
-                print(f"[INFO] {mode} window set to fullscreen")
+                print(f"[INFO] {mode} window set to fullscreen foreground")
             else:
                 print(f"[WARN] Could not find {mode} window, letting it run normally")
             
@@ -88,7 +65,6 @@ class WindowManager:
             return True
         
         try:
-            import ctypes
             EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)
             cb = EnumWindowsProc(callback)
             self.user32.EnumWindows(cb, 0)
@@ -96,6 +72,3 @@ class WindowManager:
             pass
         
         return result
-
-
-import ctypes
