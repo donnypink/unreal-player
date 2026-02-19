@@ -33,8 +33,8 @@ class TestModeDecider:
         assert result == "tracking"
 
     def test_switches_to_idle_after_face_gone(self):
-        """Switches to 'idle' after face gone for threshold duration."""
-        decider = ModeDecider(threshold_seconds=0.1)
+        """Switches to 'idle' after face gone for grace period + threshold."""
+        decider = ModeDecider(threshold_seconds=0.1, grace_period=0.1)
         
         # First establish face presence
         decider.update(True)
@@ -42,10 +42,27 @@ class TestModeDecider:
         decider.update(True)  # Now in tracking mode
         
         # Face goes away
-        time.sleep(0.15)  # Wait past threshold
+        time.sleep(0.15)  # Wait past grace period
         result = decider.update(False)
         
         assert result == "idle"
+
+    def test_grace_period_allows_brief_detection_failures(self):
+        """Brief detection failures don't reset the timer."""
+        decider = ModeDecider(threshold_seconds=0.2, grace_period=0.3)
+        
+        # Face detected for 0.15s (not quite threshold)
+        decider.update(True)
+        time.sleep(0.15)
+        
+        # Brief failure (0.1s) - within grace period
+        decider.update(False)
+        time.sleep(0.1)
+        
+        # Face returns - timer should NOT have reset
+        result = decider.update(True)
+        # Should still be idle but with accumulated time
+        assert decider.face_duration > 0.15  # Timer preserved
 
     def test_maintains_tracking_while_face_present(self):
         """Maintains 'tracking' while face continuously present."""

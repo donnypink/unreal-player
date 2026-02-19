@@ -1,0 +1,499 @@
+UE Controller - Face Detection Program
+==================================================
+Tracking EXE: projects/tracking/mediapipe.exe
+Idle EXE: projects/idle/can.exe
+Face detection threshold: 3.0s
+==================================================
+
+Flow: IDLE runs continuously (background)
+      UI shows camera feed with detection zone
+      ↓ face detected IN zone
+      UI closed → TRACKING fullscreen → UI reopened
+      Press 'q' in UI to quit
+
+[INFO] Starting idle program (background)...
+[INFO] Idle program started (PID: 46920)
+[INFO] Default boundary set: (128, 96, 384, 288)
+[INFO] Camera opened: 640x480
+[DEBUG] Face at (179,219,250,250), center=(304,344), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (179,219,250,250), center=(304,344), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (182,216,250,250), center=(307,341), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (182,216,250,250), center=(307,341), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (186,214,246,246), center=(309,337), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (186,214,246,246), center=(309,337), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (186,213,245,245), center=(308,335), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (186,213,245,245), center=(308,335), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (187,217,244,244), center=(309,339), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (187,217,244,244), center=(309,339), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (186,215,247,247), center=(309,338), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (186,215,247,247), center=(309,338), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (185,211,253,253), center=(311,337), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (185,211,253,253), center=(311,337), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (191,218,239,239), center=(310,337), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (191,218,239,239), center=(310,337), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (188,212,252,252), center=(314,338), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (188,212,252,252), center=(314,338), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (188,207,254,254), center=(315,334), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (188,207,254,254), center=(315,334), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (161,68,287,287), center=(304,211), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (189,204,254,254), center=(316,331), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=2
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (161,68,287,287), center=(304,211), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (189,204,254,254), center=(316,331), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (193,204,243,243), center=(314,325), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (193,204,243,243), center=(314,325), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (202,204,234,234), center=(319,321), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (202,204,234,234), center=(319,321), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (198,195,242,242), center=(319,316), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (198,195,242,242), center=(319,316), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (197,194,239,239), center=(316,313), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (197,194,239,239), center=(316,313), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (204,192,232,232), center=(320,308), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (204,192,232,232), center=(320,308), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (177,72,256,256), center=(305,200), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (203,187,235,235), center=(320,304), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=2
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (177,72,256,256), center=(305,200), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (203,187,235,235), center=(320,304), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (200,189,232,232), center=(316,305), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (200,189,232,232), center=(316,305), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,188,228,228), center=(320,302), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,188,228,228), center=(320,302), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (205,186,225,225), center=(317,298), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (205,186,225,225), center=(317,298), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (209,181,221,221), center=(319,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (209,181,221,221), center=(319,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (212,174,217,217), center=(320,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (212,174,217,217), center=(320,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (210,166,217,217), center=(318,274), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (210,166,217,217), center=(318,274), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (211,168,218,218), center=(320,277), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (211,168,218,218), center=(320,277), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (211,168,218,218), center=(320,277), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (211,168,218,218), center=(320,277), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (212,170,218,218), center=(321,279), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (212,170,218,218), center=(321,279), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (211,170,219,219), center=(320,279), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (211,170,219,219), center=(320,279), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (211,171,217,217), center=(319,279), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (211,171,217,217), center=(319,279), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (213,171,215,215), center=(320,278), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (213,171,215,215), center=(320,278), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (213,169,219,219), center=(322,278), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (213,169,219,219), center=(322,278), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (212,170,217,217), center=(320,278), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (212,170,217,217), center=(320,278), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (215,174,218,218), center=(324,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (215,174,218,218), center=(324,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (215,174,217,217), center=(323,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (215,174,217,217), center=(323,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (214,173,219,219), center=(323,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (214,173,219,219), center=(323,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (212,172,221,221), center=(322,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (212,172,221,221), center=(322,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (213,174,219,219), center=(322,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (213,174,219,219), center=(322,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (214,174,218,218), center=(323,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (214,174,218,218), center=(323,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (212,175,218,218), center=(321,284), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (212,175,218,218), center=(321,284), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (212,174,219,219), center=(321,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (212,174,219,219), center=(321,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (213,173,220,220), center=(323,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (213,173,220,220), center=(323,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (212,172,220,220), center=(322,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (212,172,220,220), center=(322,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (210,170,225,225), center=(322,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (210,170,225,225), center=(322,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (210,171,223,223), center=(321,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (210,171,223,223), center=(321,282), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (209,170,226,226), center=(322,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (209,170,226,226), center=(322,283), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (211,173,222,222), center=(322,284), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (211,173,222,222), center=(322,284), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (212,175,218,218), center=(321,284), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (212,175,218,218), center=(321,284), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (215,179,217,217), center=(323,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (215,179,217,217), center=(323,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (211,174,221,221), center=(321,284), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (211,174,221,221), center=(321,284), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (211,179,217,217), center=(319,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (211,179,217,217), center=(319,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,176,224,224), center=(318,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,176,224,224), center=(318,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (207,180,220,220), center=(317,290), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (207,180,220,220), center=(317,290), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,180,219,219), center=(315,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,180,219,219), center=(315,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (204,178,221,221), center=(314,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (204,178,221,221), center=(314,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (207,181,218,218), center=(316,290), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (207,181,218,218), center=(316,290), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (205,179,221,221), center=(315,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (205,179,221,221), center=(315,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,176,218,218), center=(315,285), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,176,218,218), center=(315,285), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (207,177,218,218), center=(316,286), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (207,177,218,218), center=(316,286), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,176,218,218), center=(315,285), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,176,218,218), center=(315,285), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,177,220,220), center=(316,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,177,220,220), center=(316,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (209,178,217,217), center=(317,286), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (209,178,217,217), center=(317,286), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (207,176,221,221), center=(317,286), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (207,176,221,221), center=(317,286), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (210,179,217,217), center=(318,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (210,179,217,217), center=(318,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (209,178,217,217), center=(317,286), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (209,178,217,217), center=(317,286), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (209,179,217,217), center=(317,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (209,179,217,217), center=(317,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (207,178,221,221), center=(317,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (207,178,221,221), center=(317,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (207,178,220,220), center=(317,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (207,178,220,220), center=(317,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,177,222,222), center=(317,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,177,222,222), center=(317,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,176,223,223), center=(317,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,176,223,223), center=(317,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (205,178,221,221), center=(315,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (205,178,221,221), center=(315,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,180,218,218), center=(317,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,180,218,218), center=(317,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,176,222,222), center=(317,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,176,222,222), center=(317,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (204,175,223,223), center=(315,286), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (204,175,223,223), center=(315,286), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (209,180,216,216), center=(317,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (209,180,216,216), center=(317,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,179,219,219), center=(315,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,179,219,219), center=(315,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,179,220,220), center=(316,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,179,220,220), center=(316,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (205,177,221,221), center=(315,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (205,177,221,221), center=(315,287), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (205,179,221,221), center=(315,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (205,179,221,221), center=(315,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (202,175,227,227), center=(315,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (202,175,227,227), center=(315,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (201,175,227,227), center=(314,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (201,175,227,227), center=(314,288), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (205,179,222,222), center=(316,290), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (205,179,222,222), center=(316,290), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (207,180,219,219), center=(316,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (207,180,219,219), center=(316,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,180,219,219), center=(317,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,180,219,219), center=(317,289), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (203,180,223,223), center=(314,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (203,180,223,223), center=(314,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,182,223,223), center=(317,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,182,223,223), center=(317,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (205,182,222,222), center=(316,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (205,182,222,222), center=(316,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (204,181,226,226), center=(317,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (204,181,226,226), center=(317,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (205,182,224,224), center=(317,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (205,182,224,224), center=(317,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,183,221,221), center=(316,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,183,221,221), center=(316,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (207,182,222,222), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (207,182,222,222), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,181,223,223), center=(317,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,181,223,223), center=(317,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (207,182,221,221), center=(317,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (207,182,221,221), center=(317,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (205,181,223,223), center=(316,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (205,181,223,223), center=(316,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,183,220,220), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,183,220,220), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (207,182,222,222), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (207,182,222,222), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (203,179,225,225), center=(315,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (203,179,225,225), center=(315,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,181,222,222), center=(317,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,181,222,222), center=(317,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,181,221,221), center=(318,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,181,221,221), center=(318,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,179,224,224), center=(318,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,179,224,224), center=(318,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,181,221,221), center=(316,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,181,221,221), center=(316,291), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,183,220,220), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,183,220,220), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,182,221,221), center=(318,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,182,221,221), center=(318,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (209,183,219,219), center=(318,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (209,183,219,219), center=(318,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,182,220,220), center=(318,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,182,220,220), center=(318,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,183,220,220), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,183,220,220), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (205,182,225,225), center=(317,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (205,182,225,225), center=(317,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,182,221,221), center=(318,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,182,221,221), center=(318,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,183,221,221), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,183,221,221), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (209,183,220,220), center=(319,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (209,183,220,220), center=(319,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (207,184,220,220), center=(317,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (207,184,220,220), center=(317,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (205,183,224,224), center=(317,295), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (205,183,224,224), center=(317,295), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,184,220,220), center=(318,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,184,220,220), center=(318,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (209,183,219,219), center=(318,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (209,183,219,219), center=(318,292), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,182,223,223), center=(317,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,182,223,223), center=(317,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (206,183,220,220), center=(316,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (206,183,220,220), center=(316,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,183,221,221), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (208,183,221,221), center=(318,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (211,185,218,218), center=(320,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (211,185,218,218), center=(320,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (210,186,220,220), center=(320,296), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (210,186,220,220), center=(320,296), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (211,185,217,217), center=(319,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (211,185,217,217), center=(319,293), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (210,185,219,219), center=(319,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
+[DEBUG] mode_decider result=idle, is_face_present=False, face_duration=0.00s
+[DEBUG] Face at (210,185,219,219), center=(319,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] Face at (208,184,221,221), center=(318,294), boundary=(128,96,384,288), in_boundary=True
+[DEBUG] face_found=True, face_rects=1
