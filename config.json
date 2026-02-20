@@ -3,5 +3,7 @@
     "idle_exe": "projects/idle/can.exe",
     "camera_index": 0,
     "face_detection_confidence": 0.5,
-    "detection_threshold_seconds": 3.0
+    "detection_threshold_seconds": 3.0,
+    "audio_enabled": true,
+    "sound_dir": "sounds"
 }

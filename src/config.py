@@ -9,7 +9,9 @@ class Config:
     DEFAULTS = {
         "camera_index": 0,
         "face_detection_confidence": 0.5,
-        "detection_threshold_seconds": 3.0
+        "detection_threshold_seconds": 3.0,
+        "audio_enabled": True,
+        "sound_dir": "sounds"
     }
     
     def __init__(self, config_path: str = "config.json"):
@@ -44,3 +46,11 @@ class Config:
     @property
     def detection_threshold_seconds(self) -> float:
         return self.get("detection_threshold_seconds")
+    
+    @property
+    def audio_enabled(self) -> bool:
+        return self.get("audio_enabled")
+    
+    @property
+    def sound_dir(self) -> str:
+        return self.get("sound_dir")

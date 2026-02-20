@@ -15,6 +15,7 @@ from program_runner import ProgramRunner
 from detection_ui import DetectionUI
 from window_manager import WindowManager
 from process_manager import ProcessManager
+from audio_feedback import AudioFeedback
 
 
 class UEController:
@@ -34,7 +35,12 @@ class UEController:
         )
         self.window_manager = WindowManager()
         self.idle_manager = ProcessManager(self.config.idle_exe)
+        self.audio = AudioFeedback(
+            enabled=self.config.audio_enabled,
+            sound_dir=self.config.sound_dir
+        )
         self._tracking_running = False
+        self._last_face_state = False  # Track state change for audio
     
     def _print_banner(self):
         """Print startup banner."""
@@ -76,6 +82,7 @@ class UEController:
         print("[INFO] Tracking closed")
         self._tracking_running = False
         self.mode_decider.reset()
+        self.audio.play_tracking_close()  # Audio feedback
     
     def _setup_face_detection(self):
         """Setup boundary check callback for face detector."""
@@ -114,7 +121,13 @@ class UEController:
                     continue
                 
                 face_found, face_rects = self.face_detector.detect(frame)
+                
+                # Audio feedback: face detected for first time
+                if face_found and not self._last_face_state:
+                    self.audio.play_detection_start()
+                
                 result = self.mode_decider.update(face_found)
+                self._last_face_state = face_found
                 
                 # Update UI
                 config_info = {
@@ -129,6 +142,7 @@ class UEController:
                 
                 # Check if we should launch tracking
                 if result == "tracking" and not self._tracking_running:
+                    self.audio.play_tracking_launch()  # Audio feedback
                     self._launch_tracking_sequence()
                 
                 time.sleep(0.05)  # ~20 FPS

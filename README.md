@@ -12,7 +12,12 @@ A Python program that monitors a camera and launches a tracking Unreal Engine ex
 │   ├── face_detector.py      # Face detection using OpenCV Haar Cascade
 │   ├── mode_decider.py       # Mode decision logic (time-based)
 │   ├── program_runner.py     # External program execution
-│   └── camera_handler.py     # Camera access management
+│   ├── detection_ui.py       # Detection UI with boundary box
+│   ├── camera_manager.py     # Camera access management
+│   ├── boundary_renderer.py  # UI rendering for detection boundary
+│   ├── window_manager.py     # Fullscreen window management
+│   ├── process_manager.py    # Idle process lifecycle
+│   └── audio_feedback.py     # Audio feedback for detection events
 ├── projects/
 │   ├── idle/                 # Idle mode UE program (runs continuously)
 │   │   └── can.exe
@@ -38,7 +43,12 @@ The codebase follows **SOLID principles**:
   - `face_detector.py` - Face detection using Haar Cascade
   - `mode_decider.py` - Time-based decision logic
   - `program_runner.py` - Program execution
-  - `camera_handler.py` - Camera resource management
+  - `detection_ui.py` - UI with draggable detection boundary
+  - `camera_manager.py` - Camera resource management
+  - `boundary_renderer.py` - Renders detection boundary and overlays
+  - `window_manager.py` - Launches programs in fullscreen
+  - `process_manager.py` - Manages idle program lifecycle
+  - `audio_feedback.py` - Audio feedback for detection events
   - `ue_controller.py` - Orchestration only
 
 - **Dependency Inversion**: High-level modules depend on abstractions, not concrete implementations
@@ -92,7 +102,9 @@ Update the paths to your Unreal Engine executables:
     "idle_exe": "projects/idle/can.exe",
     "camera_index": 0,
     "face_detection_confidence": 0.5,
-    "detection_threshold_seconds": 3.0
+    "detection_threshold_seconds": 3.0,
+    "audio_enabled": true,
+    "sound_dir": "sounds"
 }
 ```
 
@@ -105,6 +117,8 @@ Update the paths to your Unreal Engine executables:
 | `camera_index` | Which camera to use (0 = default) | 0 |
 | `face_detection_confidence` | Face detection sensitivity (0.0-1.0) | 0.5 |
 | `detection_threshold_seconds` | Seconds of continuous face presence before launching tracking | 3.0 |
+| `audio_enabled` | Enable audio feedback for detection events | `true` |
+| `sound_dir` | Directory for custom sound files | `sounds` |
 
 ## Run the Program
 
@@ -173,4 +187,35 @@ Your Unreal Engine programs should be designed as follows:
 - Python 3.7+
 - OpenCV (opencv-python>=4.8.0) - includes Haar Cascade classifiers
 - NumPy (numpy>=1.24.0)
+- pygame (pygame>=2.5.0) - audio feedback
 - pytest (for testing)
+
+## Audio Feedback
+
+The program provides optional audio feedback for detection events:
+
+- **Detection Start**: Plays when a face is first detected in the boundary zone
+- **Tracking Launch**: Plays when tracking program is about to launch
+- **Tracking Close**: Plays when tracking program closes
+- **Error**: Plays on errors (fallback to system beep)
+
+### Audio Configuration
+
+Audio feedback is enabled by default. To customize:
+
+```json
+{
+    "audio_enabled": true,
+    "sound_dir": "sounds"
+}
+```
+
+### Custom Sounds
+
+Place custom WAV files in the `sounds/` directory:
+- `detection_start.wav` - Face detection start sound
+- `tracking_launch.wav` - Tracking launch sound
+- `tracking_close.wav` - Tracking close sound
+- `error.wav` - Error sound
+
+If custom sounds are not found, the program falls back to Windows system beep.
