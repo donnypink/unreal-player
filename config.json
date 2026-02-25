@@ -1,9 +1,9 @@
 {
     "tracking_exe": "projects/tracking/mediapipe.exe",
-    "idle_exe": "projects/idle/can.exe",
+    "idle_exe": "projects/idle_1/mediapipe_video.exe",
     "camera_index": 0,
     "face_detection_confidence": 0.5,
     "detection_threshold_seconds": 3.0,
-    "audio_enabled": true,
+    "audio_enabled": false,
     "sound_dir": "sounds"
 }
