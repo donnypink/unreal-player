@@ -1,6 +1,6 @@
 {
     "tracking_exe": "projects/tracking/mediapipe.exe",
-    "idle_exe": "\"C:\\Program Files\\VideoLAN\\VLC\\vlc.exe\" --fullscreen --loop --no-video-title-show --no-osd --no-snapshot-preview --no-video-title \"projects/idle_video/mediapipe_idle.mp4\"",
+    "idle_exe": "\"C:\\Program Files\\VideoLAN\\VLC\\vlc.exe\" --fullscreen --loop --no-video-title-show --no-qt-fs-controller \"projects/idle_video/mediapipe_idle.mp4\"",
     "camera_index": 0,
     "face_detection_confidence": 0.5,
     "detection_threshold_seconds": 3.0,
