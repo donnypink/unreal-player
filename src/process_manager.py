@@ -13,6 +13,11 @@ class ProcessManager:
     
     def start(self) -> bool:
         """Start the idle program in background (hidden)."""
+        if os.path.exists(self.exe_path) and self.exe_path.lower().endswith(('.mp4', '.avi', '.mov', '.mkv', '.wmv')):
+            print(f"[ERROR] Cannot execute a video file directly: {self.exe_path}")
+            print(f"[HINT] Update config.json to use an executable player (e.g., 'vlc.exe {self.exe_path}')")
+            return False
+
         if not os.path.exists(self.exe_path):
             print(f"[ERROR] Idle EXE not found: {self.exe_path}")
             return False
