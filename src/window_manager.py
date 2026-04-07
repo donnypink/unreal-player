@@ -14,6 +14,10 @@ class WindowManager:
     
     def launch_fullscreen(self, exe_path: str, mode: str) -> bool:
         """Launch a program and make it fullscreen in foreground."""
+        if os.path.exists(exe_path) and exe_path.lower().endswith(('.mp4', '.avi', '.mov', '.mkv', '.wmv')):
+            print(f"[ERROR] Cannot execute a video file directly: {exe_path}")
+            return False
+
         if not os.path.exists(exe_path):
             print(f"[ERROR] EXE not found: {exe_path}")
             return False
