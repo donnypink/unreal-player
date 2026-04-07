@@ -26,8 +26,9 @@ class ProgramRunner:
         
         try:
             # Use Popen for better control, CREATE_NEW_PROCESS_GROUP for clean termination
+            # Pass as string to support command-line arguments
             self.current_process = subprocess.Popen(
-                [exe_path],
+                exe_path,
                 creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
             )
             
