@@ -3,6 +3,27 @@ import os
 import time
 import subprocess
 import signal
+from typing import Tuple
+
+
+def parse_command_string(cmd_string: str) -> Tuple[str, str]:
+    """Parse a command string into executable path and arguments.
+    
+    Returns:
+        Tuple of (executable_path, full_command_string)
+    """
+    # Handle quoted paths with spaces
+    cmd_string = cmd_string.strip()
+    if cmd_string.startswith('"'):
+        # Find the closing quote
+        end_quote = cmd_string.find('"', 1)
+        if end_quote > 0:
+            exe_path = cmd_string[1:end_quote]
+            return exe_path, cmd_string
+    # No quotes, split on first space
+    parts = cmd_string.split(None, 1)
+    exe_path = parts[0] if parts else cmd_string
+    return exe_path, cmd_string
 
 
 class ProgramRunner:
@@ -14,21 +35,25 @@ class ProgramRunner:
     
     def run(self, exe_path: str, mode: str) -> bool:
         """Run an executable until it exits (manually closed by user)."""
-        if os.path.exists(exe_path) and exe_path.lower().endswith(('.mp4', '.avi', '.mov', '.mkv', '.wmv')):
-            print(f"[ERROR] Cannot execute a video file directly: {exe_path}")
+        # Parse the executable path from the command string
+        actual_exe, full_cmd = parse_command_string(exe_path)
+        
+        # Check if user accidentally provided a direct media file
+        if os.path.exists(actual_exe) and actual_exe.lower().endswith(('.mp4', '.avi', '.mov', '.mkv', '.wmv')):
+            print(f"[ERROR] Cannot execute a video file directly: {actual_exe}")
             return False
-
-        if not os.path.exists(exe_path):
-            print(f"[ERROR] EXE not found: {exe_path}")
+        
+        if not os.path.exists(actual_exe):
+            print(f"[ERROR] EXE not found: {actual_exe}")
             return False
         
         print(f"[INFO] Starting {mode} program (run until manually closed)...")
         
         try:
             # Use Popen for better control, CREATE_NEW_PROCESS_GROUP for clean termination
-            # Pass as string to support command-line arguments
+            # Pass the full command string to support arguments
             self.current_process = subprocess.Popen(
-                exe_path,
+                full_cmd,
                 creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
             )
             
