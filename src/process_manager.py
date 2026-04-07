@@ -28,8 +28,9 @@ class ProcessManager:
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = 0  # SW_HIDE
             
+            # Pass as a string to allow Windows to parse command arguments cleanly
             self._process = subprocess.Popen(
-                [self.exe_path],
+                self.exe_path,
                 creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
                 startupinfo=startupinfo
             )
