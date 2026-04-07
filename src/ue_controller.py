@@ -13,7 +13,7 @@ from face_detector import FaceDetector
 from mode_decider import ModeDecider
 from program_runner import ProgramRunner
 from detection_ui import DetectionUI
-from window_manager import WindowManager
+from window_manager import WindowManager, parse_command_string
 from process_manager import ProcessManager
 from audio_feedback import AudioFeedback
 
@@ -70,13 +70,17 @@ class UEController:
         """Run tracking program in fullscreen foreground."""
         tracking_path = self.config.tracking_exe
         
-        if os.path.exists(tracking_path) and tracking_path.lower().endswith(('.mp4', '.avi', '.mov', '.mkv', '.wmv')):
-            print(f"[ERROR] Cannot execute a video file directly: {tracking_path}")
+        # Parse the executable path from the command string
+        actual_exe, full_cmd = parse_command_string(tracking_path)
+        
+        # Check if user accidentally provided a direct media file
+        if os.path.exists(actual_exe) and actual_exe.lower().endswith(('.mp4', '.avi', '.mov', '.mkv', '.wmv')):
+            print(f"[ERROR] Cannot execute a video file directly: {actual_exe}")
             print(f"[HINT] Update config.json to use an executable player (e.g., 'vlc.exe {tracking_path}')")
             return
 
-        if not os.path.exists(tracking_path):
-            print(f"[ERROR] Tracking EXE not found: {tracking_path}")
+        if not os.path.exists(actual_exe):
+            print(f"[ERROR] Tracking EXE not found: {actual_exe}")
             return
         
         self._tracking_running = True
