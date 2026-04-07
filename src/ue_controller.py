@@ -70,6 +70,11 @@ class UEController:
         """Run tracking program in fullscreen foreground."""
         tracking_path = self.config.tracking_exe
         
+        if os.path.exists(tracking_path) and tracking_path.lower().endswith(('.mp4', '.avi', '.mov', '.mkv', '.wmv')):
+            print(f"[ERROR] Cannot execute a video file directly: {tracking_path}")
+            print(f"[HINT] Update config.json to use an executable player (e.g., 'vlc.exe {tracking_path}')")
+            return
+
         if not os.path.exists(tracking_path):
             print(f"[ERROR] Tracking EXE not found: {tracking_path}")
             return
