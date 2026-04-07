@@ -25,9 +25,9 @@ class WindowManager:
         try:
             print(f"[INFO] Launching {mode} in fullscreen...")
             
-            # Launch the program
+            # Pass string to support command arguments
             process = subprocess.Popen(
-                [exe_path],
+                exe_path,
                 creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
             )
             
