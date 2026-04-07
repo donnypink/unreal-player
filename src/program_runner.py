@@ -14,6 +14,10 @@ class ProgramRunner:
     
     def run(self, exe_path: str, mode: str) -> bool:
         """Run an executable until it exits (manually closed by user)."""
+        if os.path.exists(exe_path) and exe_path.lower().endswith(('.mp4', '.avi', '.mov', '.mkv', '.wmv')):
+            print(f"[ERROR] Cannot execute a video file directly: {exe_path}")
+            return False
+
         if not os.path.exists(exe_path):
             print(f"[ERROR] EXE not found: {exe_path}")
             return False
