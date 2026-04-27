@@ -8,8 +8,11 @@ class Config:
     
     DEFAULTS = {
         "camera_index": 0,
+        "detection_camera_index": 0,
+        "tracking_camera_index": 1,
         "face_detection_confidence": 0.5,
         "detection_threshold_seconds": 3.0,
+        "face_loss_grace_period": 2.0,
         "audio_enabled": True,
         "sound_dir": "sounds"
     }
@@ -54,3 +57,15 @@ class Config:
     @property
     def sound_dir(self) -> str:
         return self.get("sound_dir")
+
+    @property
+    def detection_camera_index(self) -> int:
+        return self.get("detection_camera_index")
+
+    @property
+    def tracking_camera_index(self) -> int:
+        return self.get("tracking_camera_index")
+
+    @property
+    def face_loss_grace_period(self) -> float:
+        return self.get("face_loss_grace_period")
