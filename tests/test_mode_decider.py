@@ -33,8 +33,8 @@ class TestModeDecider:
         assert result == "tracking"
 
     def test_switches_to_idle_after_face_gone(self):
-        """Switches to 'idle' after face gone for grace period + threshold."""
-        decider = ModeDecider(threshold_seconds=0.1, grace_period=0.1)
+        """Switches to 'idle' after face gone for grace period + face_loss_grace_period."""
+        decider = ModeDecider(threshold_seconds=0.1, grace_period=0.1, face_loss_grace_period=0.1)
         
         # First establish face presence
         decider.update(True)
@@ -42,9 +42,36 @@ class TestModeDecider:
         decider.update(True)  # Now in tracking mode
         
         # Face goes away
-        time.sleep(0.15)  # Wait past grace period
+        time.sleep(0.25)  # Wait past grace period + face_loss_grace_period
         result = decider.update(False)
         
+        assert result == "idle"
+    
+    def test_face_loss_grace_period_keeps_tracking(self):
+        """Tracking continues during face_loss_grace_period before switching to idle."""
+        decider = ModeDecider(threshold_seconds=0.1, grace_period=0.1, face_loss_grace_period=0.2)
+        
+        # First establish tracking
+        decider.update(True)
+        time.sleep(0.15)
+        decider.update(True)  # Now in tracking mode
+        
+        # Face goes away briefly (within face_loss_grace_period)
+        # At this point: time_since_face = 0.1s, which equals grace_period
+        # Total allowed loss = grace_period + face_loss_grace_period = 0.3s
+        # So time_since_face=0.1 < 0.3, we're still in tracking
+        time.sleep(0.1)
+        result = decider.update(False)
+        
+        # Should still be tracking (within total grace period)
+        assert result == "tracking"
+        
+        # Wait for total grace period to pass (need > grace_period + face_loss_grace_period)
+        # We've already waited 0.1s, need additional time for total > 0.3s
+        time.sleep(0.25)  # Total time since face: 0.1 + 0.25 = 0.35s > 0.3s
+        result = decider.update(False)
+        
+        # Now should switch to idle
         assert result == "idle"
 
     def test_grace_period_allows_brief_detection_failures(self):
