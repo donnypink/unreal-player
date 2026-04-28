@@ -1,12 +1,17 @@
 """
 UE Controller - Face Detection Program
+Two-camera setup:
+- Detection camera (always running): Shows detection UI with boundary
+- Tracking camera: Used by tracking program (launched/closed dynamically)
 Idle runs continuously in background.
-Detection UI shows camera feed with adjustable boundary box.
 Tracking launches when face detected within boundary.
+Tracking closes automatically when face lost for grace period.
 """
 import time
 import sys
 import os
+import subprocess
+import signal
 
 from config import Config
 from face_detector import FaceDetector
@@ -19,19 +24,23 @@ from audio_feedback import AudioFeedback
 
 
 class UEController:
-    """Controls launching tracking program based on face detection with UI."""
+    """Controls launching tracking program based on face detection with UI.
+    
+    Two-camera mode: Detection camera stays on, tracking program uses second camera.
+    """
     
     def __init__(self, config_path: str = "config.json"):
         self.config = Config(config_path)
         self.face_detector = FaceDetector(self.config.face_detection_confidence)
         self.mode_decider = ModeDecider(
             threshold_seconds=self.config.detection_threshold_seconds,
-            grace_period=0.5
+            grace_period=0.5,
+            face_loss_grace_period=self.config.face_loss_grace_period
         )
         self.program_runner = ProgramRunner()
         self.detection_ui = DetectionUI(
             window_name="Face Detection",
-            camera_index=self.config.camera_index
+            camera_index=self.config.detection_camera_index
         )
         self.window_manager = WindowManager()
         self.idle_manager = ProcessManager(self.config.idle_exe)
@@ -39,35 +48,48 @@ class UEController:
             enabled=self.config.audio_enabled,
             sound_dir=self.config.sound_dir
         )
+        self._tracking_process = None  # Track the tracking program process
         self._tracking_running = False
         self._last_face_state = False  # Track state change for audio
     
     def _print_banner(self):
         """Print startup banner."""
         print("=" * 50)
-        print("UE Controller - Face Detection Program")
+        print("UE Controller - Face Detection Program (Two-Camera Mode)")
         print("=" * 50)
+        print(f"Detection Camera: {self.config.detection_camera_index}")
+        print(f"Tracking Camera: {self.config.tracking_camera_index}")
         print(f"Tracking EXE: {self.config.tracking_exe}")
         print(f"Idle EXE: {self.config.idle_exe}")
         print(f"Face detection threshold: {self.config.detection_threshold_seconds}s")
+        print(f"Face loss grace period: {self.config.face_loss_grace_period}s")
         print("=" * 50)
         print("\nFlow: IDLE runs continuously (background)")
-        print("      UI shows camera feed with detection zone")
+        print("      Detection camera shows UI with detection zone")
         print("      ↓ face detected IN zone")
-        print("      UI closed → TRACKING fullscreen → UI reopened")
+        print("      TRACKING launches (detection camera stays on)")
+        print("      ↓ face lost for grace period")
+        print("      TRACKING closes automatically")
         print("      Press 'q' in UI to quit\n")
     
     def _get_detection_status(self) -> str:
         """Get current detection status text."""
         if self._tracking_running:
+            if self.mode_decider.time_since_face_lost > 0:
+                remaining = self.config.face_loss_grace_period - self.mode_decider.time_since_face_lost
+                if remaining > 0:
+                    return f"TRACKING (face lost: {remaining:.1f}s to close)"
             return "TRACKING RUNNING"
         elif self.mode_decider.is_face_present:
             return f"FACE DETECTED ({self.mode_decider.face_duration:.1f}s)"
         else:
             return "MONITORING"
     
-    def _run_tracking(self):
-        """Run tracking program in fullscreen foreground."""
+    def _launch_tracking(self) -> bool:
+        """Launch tracking program as a background process (non-blocking)."""
+        if self._tracking_running:
+            return True  # Already running
+        
         tracking_path = self.config.tracking_exe
         
         # Parse the executable path from the command string
@@ -77,21 +99,63 @@ class UEController:
         if os.path.exists(actual_exe) and actual_exe.lower().endswith(('.mp4', '.avi', '.mov', '.mkv', '.wmv')):
             print(f"[ERROR] Cannot execute a video file directly: {actual_exe}")
             print(f"[HINT] Update config.json to use an executable player (e.g., 'vlc.exe {tracking_path}')")
-            return
+            return False
 
         if not os.path.exists(actual_exe):
             print(f"[ERROR] Tracking EXE not found: {actual_exe}")
-            return
+            return False
         
-        self._tracking_running = True
-        print(f"[INFO] Launching tracking in fullscreen...")
+        try:
+            print(f"[INFO] Launching tracking program...")
+            
+            # Launch as background process
+            self._tracking_process = subprocess.Popen(
+                full_cmd,
+                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
+            )
+            self._tracking_running = True
+            print(f"[INFO] Tracking launched (PID: {self._tracking_process.pid})")
+            return True
+        except Exception as e:
+            print(f"[ERROR] Failed to launch tracking: {e}")
+            return False
+    
+    def _close_tracking(self) -> bool:
+        """Close the tracking program if running."""
+        if not self._tracking_running or self._tracking_process is None:
+            return True  # Not running
         
-        self.window_manager.launch_fullscreen(tracking_path, "tracking")
-        
-        print("[INFO] Tracking closed")
-        self._tracking_running = False
-        self.mode_decider.reset()
-        self.audio.play_tracking_close()  # Audio feedback
+        try:
+            print("[INFO] Closing tracking program (face lost)...")
+            
+            # Try graceful termination first
+            self._tracking_process.terminate()
+            
+            try:
+                self._tracking_process.wait(timeout=3)
+                print("[INFO] Tracking closed gracefully")
+            except subprocess.TimeoutExpired:
+                # Force kill if needed
+                self._tracking_process.kill()
+                self._tracking_process.wait(timeout=2)
+                print("[INFO] Tracking killed (force)")
+            
+            self._tracking_process = None
+            self._tracking_running = False
+            self.mode_decider.reset_tracking()
+            self.audio.play_tracking_close()
+            return True
+        except Exception as e:
+            print(f"[WARN] Error closing tracking: {e}")
+            self._tracking_process = None
+            self._tracking_running = False
+            return False
+    
+    def _is_tracking_still_running(self) -> bool:
+        """Check if tracking process is still alive."""
+        if self._tracking_process is None:
+            return False
+        return self._tracking_process.poll() is None
     
     def _setup_face_detection(self):
         """Setup boundary check callback for face detector."""
@@ -100,7 +164,7 @@ class UEController:
         )
     
     def run(self):
-        """Main loop with detection UI."""
+        """Main loop with detection UI (two-camera mode)."""
         self._print_banner()
         
         # Start idle first
@@ -108,7 +172,8 @@ class UEController:
             print("[ERROR] Failed to start idle program. Exiting.")
             return
         
-        # Open detection UI (also opens camera)
+        # Open detection UI (also opens detection camera)
+        # Detection camera stays on throughout, tracking uses second camera
         if not self.detection_ui.open():
             print("[ERROR] Failed to open camera/UI. Exiting.")
             self._cleanup()
@@ -124,6 +189,13 @@ class UEController:
                 # Ensure idle is running
                 self.idle_manager.ensure_running()
                 
+                # Check if tracking process died unexpectedly
+                if self._tracking_running and not self._is_tracking_still_running():
+                    print("[INFO] Tracking process ended unexpectedly")
+                    self._tracking_process = None
+                    self._tracking_running = False
+                    self.mode_decider.reset_tracking()
+                
                 # Read frame and detect faces
                 frame = self.detection_ui.read_frame()
                 if frame is None:
@@ -138,10 +210,11 @@ class UEController:
                 result = self.mode_decider.update(face_found)
                 self._last_face_state = face_found
                 
-                # Update UI
+                # Update UI (with extended info for tracking state)
                 config_info = {
                     'threshold': self.config.detection_threshold_seconds,
-                    'confidence': self.config.face_detection_confidence
+                    'confidence': self.config.face_detection_confidence,
+                    'face_loss_grace_period': self.config.face_loss_grace_period
                 }
                 status = self._get_detection_status()
                 
@@ -149,10 +222,18 @@ class UEController:
                     print("[INFO] UI closed by user")
                     break
                 
-                # Check if we should launch tracking
+                # Two-camera logic:
+                # - Face detected + threshold met → Launch tracking (if not running)
+                # - Face lost + grace period exceeded → Close tracking (if running)
+                
                 if result == "tracking" and not self._tracking_running:
-                    self.audio.play_tracking_launch()  # Audio feedback
-                    self._launch_tracking_sequence()
+                    # Face detected, launch tracking
+                    self.audio.play_tracking_launch()
+                    self._launch_tracking()
+                
+                if result == "idle" and self._tracking_running:
+                    # Face lost for grace period, close tracking
+                    self._close_tracking()
                 
                 time.sleep(0.05)  # ~20 FPS
                 
@@ -164,31 +245,16 @@ class UEController:
             self._cleanup()
     
     def _launch_tracking_sequence(self):
-        """Close UI, launch tracking, reopen UI."""
-        print("[INFO] Face detected! Preparing to launch tracking...")
-        
-        # Close UI to release camera
-        print("[INFO] Closing UI to release camera...")
-        self.detection_ui.release()
-        
-        # Launch tracking
-        self._run_tracking()
-        
-        # Reopen UI for continued monitoring
-        print("[INFO] Reopening UI...")
-        if not self.detection_ui.open():
-            print("[ERROR] Failed to reopen UI. Exiting.")
-            return
-        
-        # Re-setup face detection
-        self._setup_face_detection()
-        self.detection_ui.set_drag_callback(self._setup_face_detection)
-        
-        print("[INFO] Back to monitoring...")
+        """Launch tracking (two-camera mode - UI stays open)."""
+        print("[INFO] Face detected! Launching tracking...")
+        self._launch_tracking()
     
     def _cleanup(self):
         """Clean up processes on shutdown."""
         print("[INFO] Cleaning up...")
+        # Close tracking if running
+        if self._tracking_running:
+            self._close_tracking()
         self.detection_ui.release()
         self.idle_manager.stop()
 
