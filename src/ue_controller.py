@@ -53,6 +53,7 @@ class UEController:
         )
         self._tracking_process: Optional[subprocess.Popen] = None
         self._tracking_running = False
+        self._tracking_minimized = False  # Track if tracking window is minimized
         self._idle_pid: Optional[int] = None
         self._last_face_state = False  # Track state change for audio
 
@@ -89,9 +90,21 @@ class UEController:
             return "MONITORING"
 
     def _switch_to_tracking(self) -> bool:
-        """Launch tracking and bring its window to foreground, hide idle."""
-        if self._tracking_running:
-            return True  # Already running
+        """Launch tracking and bring its window to foreground, hide idle.
+        
+        If tracking is already running (but minimized), just restore its window.
+        """
+        # If tracking is already running (but possibly minimized), just restore window
+        if self._tracking_running and self._is_tracking_still_running():
+            tracking_hwnd = self.window_manager.find_window(self._tracking_process.pid)
+            if tracking_hwnd:
+                self.window_manager.maximize(tracking_hwnd)
+                self.window_manager.bring_to_foreground(tracking_hwnd)
+                print("[INFO] Tracking window restored to foreground")
+                return True
+            else:
+                print("[WARN] Could not find tracking window, will relaunch")
+                # Fall through to launch new instance
 
         tracking_path = self.config.tracking_exe
 
@@ -159,44 +172,46 @@ class UEController:
                 print("[INFO] Idle window restored (fallback)")
 
     def _switch_to_idle(self) -> bool:
-        """Close tracking and bring idle window back to foreground."""
+        """Minimize tracking and bring idle window back to foreground.
+        
+        Tracking process is kept running (just minimized) so it can be
+        restored quickly when face is detected again.
+        """
         if not self._tracking_running or self._tracking_process is None:
             return True  # Not running
         
-        # Bring idle to foreground first (before closing tracking)
+        # Check if tracking is still running - if not, clean up
+        if not self._is_tracking_still_running():
+            print("[INFO] Tracking process died, cleaning up")
+            self._tracking_process = None
+            self._tracking_running = False
+            self.mode_decider.reset_tracking()
+            # Still restore idle
+            if self._idle_pid:
+                idle_hwnd = self.window_manager.find_window(self._idle_pid)
+                if idle_hwnd:
+                    self.window_manager.maximize(idle_hwnd)
+                    self.window_manager.bring_to_foreground(idle_hwnd)
+            return True
+        
+        # Minimize tracking window (keep process running)
+        tracking_hwnd = self.window_manager.find_window(self._tracking_process.pid)
+        if tracking_hwnd:
+            self.window_manager.minimize(tracking_hwnd)
+            print("[INFO] Tracking window minimized (process kept running)")
+        
+        # Bring idle to foreground
         if self._idle_pid:
             idle_hwnd = self.window_manager.find_window(self._idle_pid)
             if idle_hwnd:
                 self.window_manager.maximize(idle_hwnd)
                 self.window_manager.bring_to_foreground(idle_hwnd)
                 print("[INFO] Idle window brought to foreground")
-                time.sleep(0.3)  # Brief delay for idle to activate
-
-        try:
-            print("[INFO] Closing tracking program (face lost)...")
-
-            # Try graceful termination first
-            self._tracking_process.terminate()
-
-            try:
-                self._tracking_process.wait(timeout=3)
-                print("[INFO] Tracking closed gracefully")
-            except subprocess.TimeoutExpired:
-                # Force kill if needed
-                self._tracking_process.kill()
-                self._tracking_process.wait(timeout=2)
-                print("[INFO] Tracking killed (force)")
-
-            self._tracking_process = None
-            self._tracking_running = False
-            self.mode_decider.reset_tracking()
-            self.audio.play_tracking_close()
-            return True
-        except Exception as e:
-            print(f"[WARN] Error closing tracking: {e}")
-            self._tracking_process = None
-            self._tracking_running = False
-            return False
+        
+        # Keep _tracking_running = True and process running - just minimize window
+        # Mode decider will handle the state
+        self.mode_decider.reset_tracking()
+        return True
 
     def _is_tracking_still_running(self) -> bool:
         """Check if tracking process is still alive."""
@@ -277,14 +292,16 @@ class UEController:
                 # - Face detected + threshold met -> Launch tracking, switch window
                 # - Face lost + grace period exceeded -> Close tracking, switch back to idle
 
-                if result == "tracking" and not self._tracking_running:
-                    # Face detected, launch tracking and switch window
+                if result == "tracking" and (not self._tracking_running or self._tracking_minimized):
+                    # Face detected, launch tracking or restore minimized window
                     self.audio.play_tracking_launch()
                     self._switch_to_tracking()
+                    self._tracking_minimized = False
 
-                if result == "idle" and self._tracking_running:
-                    # Face lost for grace period, close tracking and switch back
+                if result == "idle" and self._tracking_running and not self._tracking_minimized:
+                    # Face lost for grace period, minimize tracking and switch back to idle
                     self._switch_to_idle()
+                    self._tracking_minimized = True
 
                 time.sleep(0.05)  # ~20 FPS
 
@@ -298,9 +315,18 @@ class UEController:
     def _cleanup(self):
         """Clean up processes on shutdown."""
         print("[INFO] Cleaning up...")
-        # Close tracking if running
-        if self._tracking_running:
-            self._switch_to_idle()
+        # Terminate tracking if running
+        if self._tracking_running and self._tracking_process:
+            try:
+                print("[INFO] Terminating tracking program...")
+                self._tracking_process.terminate()
+                try:
+                    self._tracking_process.wait(timeout=3)
+                except subprocess.TimeoutExpired:
+                    self._tracking_process.kill()
+                    self._tracking_process.wait(timeout=2)
+            except Exception as e:
+                print(f"[WARN] Error terminating tracking: {e}")
         self.detection_ui.release()
         self.idle_manager.stop()
 
