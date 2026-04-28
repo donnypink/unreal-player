@@ -16,9 +16,10 @@ def test_config():
     return {
         "tracking_exe": "C:/test/tracking.exe",
         "idle_exe": "C:/test/idle.exe",
-        "camera_index": 0,
+        "detection_camera_index": 0,
         "face_detection_confidence": 0.5,
-        "detection_threshold_seconds": 3.0
+        "detection_threshold_seconds": 3.0,
+        "face_loss_grace_period": 2.0
     }
 
 
