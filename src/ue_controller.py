@@ -3,8 +3,8 @@ UE Controller - Face Detection Program
 Screen-saver style switching:
 - Idle program (VLC) runs continuously in background
 - Detection camera shows UI with boundary zone
-- Face detected -> Tracking launches fullscreen foreground
-- Face lost for grace period -> Tracking closes, Idle returns to foreground
+- Face detected -> Tracking launches, window switches to tracking (idle hidden)
+- Face lost for grace period -> Tracking closes, window switches back to idle
 - Press 'q' in detection UI to quit
 """
 import time
@@ -12,13 +12,14 @@ import sys
 import os
 import subprocess
 import signal
+from typing import Optional
 
 from config import Config
 from face_detector import FaceDetector
 from mode_decider import ModeDecider
 from program_runner import ProgramRunner
 from detection_ui import DetectionUI
-from window_manager import WindowManager, parse_command_string
+from window_manager import WindowManager
 from process_manager import ProcessManager
 from audio_feedback import AudioFeedback
 
@@ -27,7 +28,8 @@ class UEController:
     """Controls launching tracking program based on face detection with UI.
 
     Screen-saver mode: Idle runs continuously. Tracking is launched/closed
-    dynamically based on face presence. Detection UI stays visible.
+    dynamically based on face presence. Window switching brings tracking/idle
+    to foreground. Detection UI stays visible throughout.
     """
 
     def __init__(self, config_path: str = "config.json"):
@@ -49,8 +51,9 @@ class UEController:
             enabled=self.config.audio_enabled,
             sound_dir=self.config.sound_dir
         )
-        self._tracking_process = None  # Track the tracking program process
+        self._tracking_process: Optional[subprocess.Popen] = None
         self._tracking_running = False
+        self._idle_pid: Optional[int] = None
         self._last_face_state = False  # Track state change for audio
 
     def _print_banner(self):
@@ -64,10 +67,10 @@ class UEController:
         print(f"Face detection threshold: {self.config.detection_threshold_seconds}s")
         print(f"Face loss grace period: {self.config.face_loss_grace_period}s")
         print("=" * 50)
-        print("\nFlow: IDLE runs continuously (background)")
+        print("\nFlow: IDLE runs continuously (fullscreen)")
         print("      UI shows camera feed with detection zone")
         print("      ↓ face detected IN zone")
-        print("      TRACKING fullscreen → IDLE stays hidden")
+        print("      TRACKING fullscreen (foreground)")
         print("      ↓ face lost for grace period")
         print("      TRACKING closes → IDLE returns fullscreen")
         print("      Press 'q' in UI to quit\n")
@@ -85,17 +88,17 @@ class UEController:
         else:
             return "MONITORING"
 
-    def _launch_tracking(self) -> bool:
-        """Launch tracking program as a background process (non-blocking)."""
+    def _switch_to_tracking(self) -> bool:
+        """Launch tracking and bring its window to foreground, hide idle."""
         if self._tracking_running:
             return True  # Already running
 
         tracking_path = self.config.tracking_exe
 
-        # Parse the executable path from the command string
-        actual_exe, full_cmd = parse_command_string(tracking_path)
-
         # Check if user accidentally provided a direct media file
+        from process_manager import parse_command_string
+        actual_exe, _ = parse_command_string(tracking_path)
+        
         if os.path.exists(actual_exe) and actual_exe.lower().endswith(('.mp4', '.avi', '.mov', '.mkv', '.wmv')):
             print(f"[ERROR] Cannot execute a video file directly: {actual_exe}")
             print(f"[HINT] Update config.json to use an executable player (e.g., 'vlc.exe {tracking_path}')")
@@ -107,23 +110,52 @@ class UEController:
 
         try:
             print(f"[INFO] Launching tracking program...")
-
-            # Launch as background process
-            self._tracking_process = subprocess.Popen(
-                full_cmd,
-                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
-            )
+            
+            # Launch as non-blocking process
+            self._tracking_process = self.window_manager.launch_nonblocking(tracking_path)
+            if self._tracking_process is None:
+                return False
+            
             self._tracking_running = True
             print(f"[INFO] Tracking launched (PID: {self._tracking_process.pid})")
+            
+            # Wait for window to appear and bring to foreground
+            time.sleep(1.5)
+            
+            # Minimize idle to put it in background
+            if self._idle_pid:
+                idle_hwnd = self.window_manager.find_window(self._idle_pid)
+                if idle_hwnd:
+                    self.window_manager.minimize(idle_hwnd)
+                    print("[INFO] Idle window minimized")
+            
+            # Bring tracking to foreground
+            tracking_hwnd = self.window_manager.find_window(self._tracking_process.pid)
+            if tracking_hwnd:
+                self.window_manager.maximize(tracking_hwnd)
+                self.window_manager.bring_to_foreground(tracking_hwnd)
+                print("[INFO] Tracking window brought to foreground")
+            else:
+                print("[WARN] Could not find tracking window")
+            
             return True
         except Exception as e:
             print(f"[ERROR] Failed to launch tracking: {e}")
             return False
 
-    def _close_tracking(self) -> bool:
-        """Close the tracking program if running."""
+    def _switch_to_idle(self) -> bool:
+        """Close tracking and bring idle window back to foreground."""
         if not self._tracking_running or self._tracking_process is None:
             return True  # Not running
+        
+        # Bring idle to foreground first (before closing tracking)
+        if self._idle_pid:
+            idle_hwnd = self.window_manager.find_window(self._idle_pid)
+            if idle_hwnd:
+                self.window_manager.maximize(idle_hwnd)
+                self.window_manager.bring_to_foreground(idle_hwnd)
+                print("[INFO] Idle window brought to foreground")
+                time.sleep(0.3)  # Brief delay for idle to activate
 
         try:
             print("[INFO] Closing tracking program (face lost)...")
@@ -171,6 +203,9 @@ class UEController:
         if not self.idle_manager.start():
             print("[ERROR] Failed to start idle program. Exiting.")
             return
+        
+        # Store idle PID for window management
+        self._idle_pid = self.idle_manager.get_pid()
 
         # Open detection UI (also opens detection camera)
         if not self.detection_ui.open():
@@ -194,6 +229,8 @@ class UEController:
                     self._tracking_process = None
                     self._tracking_running = False
                     self.mode_decider.reset_tracking()
+                    # Bring idle back
+                    self._switch_to_idle()
 
                 # Read frame and detect faces
                 frame = self.detection_ui.read_frame()
@@ -222,17 +259,17 @@ class UEController:
                     break
 
                 # Screen-saver logic:
-                # - Face detected + threshold met -> Launch tracking (idle stays running)
-                # - Face lost + grace period exceeded -> Close tracking (idle visible again)
+                # - Face detected + threshold met -> Launch tracking, switch window
+                # - Face lost + grace period exceeded -> Close tracking, switch back to idle
 
                 if result == "tracking" and not self._tracking_running:
-                    # Face detected, launch tracking
+                    # Face detected, launch tracking and switch window
                     self.audio.play_tracking_launch()
-                    self._launch_tracking()
+                    self._switch_to_tracking()
 
                 if result == "idle" and self._tracking_running:
-                    # Face lost for grace period, close tracking
-                    self._close_tracking()
+                    # Face lost for grace period, close tracking and switch back
+                    self._switch_to_idle()
 
                 time.sleep(0.05)  # ~20 FPS
 
