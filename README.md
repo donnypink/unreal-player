@@ -1,6 +1,6 @@
-# UE Controller - Face Detection Program
+# UE Controller - Face Detection Screen-Saver
 
-A Python program that monitors a camera and launches a tracking Unreal Engine executable when a face is detected. The idle program runs continuously in the background.
+A Python program that monitors a camera and switches between idle and tracking programs based on face detection. When a face is detected in the configured zone for a threshold duration, the tracking program launches fullscreen. When the face is lost for a grace period, tracking closes and idle returns to foreground.
 
 ## Project Structure
 
@@ -15,14 +15,12 @@ A Python program that monitors a camera and launches a tracking Unreal Engine ex
 │   ├── detection_ui.py       # Detection UI with boundary box
 │   ├── camera_manager.py     # Camera access management
 │   ├── boundary_renderer.py  # UI rendering for detection boundary
-│   ├── window_manager.py     # Fullscreen window management
+│   ├── window_manager.py     # Window switching (foreground/background)
 │   ├── process_manager.py    # Idle process lifecycle
 │   └── audio_feedback.py     # Audio feedback for detection events
 ├── projects/
 │   ├── idle/                 # Idle mode UE program (runs continuously)
-│   │   └── can.exe
 │   └── tracking/             # Tracking mode UE program (launched on face detect)
-│       └── mediapipe.exe
 ├── tests/
 │   ├── conftest.py           # Shared test fixtures
 │   ├── test_config.py        # Config tests
@@ -46,45 +44,41 @@ The codebase follows **SOLID principles**:
   - `detection_ui.py` - UI with draggable detection boundary
   - `camera_manager.py` - Camera resource management
   - `boundary_renderer.py` - Renders detection boundary and overlays
-  - `window_manager.py` - Launches programs in fullscreen
+  - `window_manager.py` - Window switching (foreground/background/maximize/minimize)
   - `process_manager.py` - Manages idle program lifecycle
   - `audio_feedback.py` - Audio feedback for detection events
   - `ue_controller.py` - Orchestration only
 
-- **Dependency Inversion**: High-level modules depend on abstractions, not concrete implementations
-
-## How It Works
-
-The program follows this flow:
+## Screen-Saver Behavior
 
 ```
-[IDLE] ────────────────────────────────────────────────
-  │                                                    │
-  │ runs continuously in background                  │
-  │                                                    │
-  ↓ face detected for threshold seconds               │
-[TRACKING] launches ────────────────────────────────→ │
-  │ runs until manually closed                         │
-  │                                                    │
-  ↓ user closes tracking                               │
-  └────────────────────────────────────────────────────┘
-       (IDLE was running all along, continues)
+[IDLE] fullscreen ─────────────────────────────────────
+   │                                                    │
+   │ runs continuously (VLC video loop)                │
+   │                                                    │
+   ↓ face detected in zone for threshold seconds        │
+[TRACKING] fullscreen ────────────────────────────────→
+   │ launched, idle minimized                          │
+   │                                                    │
+   ↓ face lost for grace period                         │
+[IDLE] returns to foreground ──────────────────────────┘
+   tracking closes, idle maximized
 ```
 
 **Flow:**
-1. **Idle** program launches and runs **continuously** in the background
-2. Camera checks for faces every 0.5 seconds
-3. When face detected for `detection_threshold_seconds` → **Tracking** launches
-4. **Idle keeps running** (not stopped)
-5. Tracking runs until **manually closed** by user
-6. After Tracking closes → back to monitoring (Idle still running)
-7. Loop continues
+1. **Idle** program (VLC) launches and runs **continuously** in fullscreen
+2. Detection camera monitors for faces within the boundary zone
+3. When face detected for `detection_threshold_seconds` → **Tracking** launches fullscreen
+4. Idle is minimized (stays running in background)
+5. When face lost for `face_loss_grace_period` → **Tracking** closes
+6. Idle returns to foreground fullscreen
+7. Detection UI stays visible throughout
 
 ### Face Detection Logic
 
-- **Launch tracking**: Face must be present for `detection_threshold_seconds` continuously (default: 3.0s)
-- **Return to monitoring**: Tracking runs until user manually closes it
-- This prevents flickering when faces appear/disappear briefly
+- **Launch tracking**: Face must be present in zone for `detection_threshold_seconds` continuously (default: 3.0s)
+- **Close tracking**: Face must be lost for `face_loss_grace_period` (default: 2.0s)
+- Uses separate detection camera (`detection_camera_index`) from tracking program
 
 ## Setup
 
@@ -94,16 +88,15 @@ pip install -r requirements.txt
 ```
 
 ### 2. Edit config.json
-Update the paths to your Unreal Engine executables:
-
 ```json
 {
     "tracking_exe": "projects/tracking/mediapipe.exe",
-    "idle_exe": "projects/idle/can.exe",
-    "camera_index": 0,
+    "idle_exe": "\"C:\\Program Files\\VideoLAN\\VLC\\vlc.exe\" --fullscreen --loop \"video.mp4\"",
+    "detection_camera_index": 0,
     "face_detection_confidence": 0.5,
     "detection_threshold_seconds": 3.0,
-    "audio_enabled": true,
+    "face_loss_grace_period": 2.0,
+    "audio_enabled": false,
     "sound_dir": "sounds"
 }
 ```
@@ -113,11 +106,12 @@ Update the paths to your Unreal Engine executables:
 | Setting | Description | Default |
 |---------|-------------|---------|
 | `tracking_exe` | Path to UE program launched when face detected | (required) |
-| `idle_exe` | Path to UE program that runs continuously | (required) |
-| `camera_index` | Which camera to use (0 = default) | 0 |
+| `idle_exe` | Path to video player with idle video (e.g., VLC) | (required) |
+| `detection_camera_index` | Which camera to use for face detection | 0 |
 | `face_detection_confidence` | Face detection sensitivity (0.0-1.0) | 0.5 |
 | `detection_threshold_seconds` | Seconds of continuous face presence before launching tracking | 3.0 |
-| `audio_enabled` | Enable audio feedback for detection events | `true` |
+| `face_loss_grace_period` | Seconds of face absence before closing tracking | 2.0 |
+| `audio_enabled` | Enable audio feedback for detection events | `false` |
 | `sound_dir` | Directory for custom sound files | `sounds` |
 
 ## Run the Program
@@ -147,35 +141,45 @@ pytest tests/test_config.py -v
 pytest tests/test_program_runner.py -v
 ```
 
-## Important - UE Program Requirements
-
-Your Unreal Engine programs should be designed as follows:
+## Important - Program Requirements
 
 ### Idle Program
-- Runs **continuously** in the background (never exits)
-- Should **NOT** use the camera (controller owns camera access)
-- Should be lightweight
+- Runs **continuously** in fullscreen (e.g., VLC with looping video)
+- Should **NOT** use the detection camera
 - Will be restarted if it crashes
 
 ### Tracking Program
-- Launched when a face is detected
-- **Can** use the camera for metahuman tracking
-- Must be **manually closed** by user when done
-- When closed, controller continues monitoring (idle still running)
+- Launched when a face is detected and stays running while face is present
+- Can use its own camera for metahuman tracking
+- Closes automatically after face loss grace period
+- When closed, idle returns to foreground
+
+## Window Management
+
+The `window_manager.py` module handles window switching:
+
+- `launch_nonblocking(cmd)` - Launch process without blocking
+- `find_window(pid)` - Find window handle by process ID (with retry)
+- `bring_to_foreground(hwnd)` - Bring window to front
+- `maximize(hwnd)` / `minimize(hwnd)` - Window state controls
+
+This ensures smooth transitions between idle and tracking programs.
 
 ## Troubleshooting
 
 ### "Camera already in use" error
 - Make sure idle program doesn't access the camera
-- Only tracking program should use camera
+- Check `detection_camera_index` in config.json
 
 ### Programs never switch to tracking
 - Lower `face_detection_confidence` to make detection more sensitive
 - Lower `detection_threshold_seconds` to launch faster
 - Ensure good lighting for face detection
+- Ensure face is within the boundary zone
 
 ### Too much switching
-- Increase `detection_threshold_seconds` for more stability
+- Increase `detection_threshold_seconds` for more stable launch
+- Increase `face_loss_grace_period` to reduce rapid switching
 - Adjust camera position for better face visibility
 
 ### Idle program crashes
@@ -197,11 +201,8 @@ The program provides optional audio feedback for detection events:
 - **Detection Start**: Plays when a face is first detected in the boundary zone
 - **Tracking Launch**: Plays when tracking program is about to launch
 - **Tracking Close**: Plays when tracking program closes
-- **Error**: Plays on errors (fallback to system beep)
 
 ### Audio Configuration
-
-Audio feedback is enabled by default. To customize:
 
 ```json
 {
@@ -213,9 +214,7 @@ Audio feedback is enabled by default. To customize:
 ### Custom Sounds
 
 Place custom WAV files in the `sounds/` directory:
-- `detection_start.wav` - Face detection start sound
-- `tracking_launch.wav` - Tracking launch sound
+- `start_beep.wav` - Face detection start sound
 - `tracking_close.wav` - Tracking close sound
-- `error.wav` - Error sound
 
-If custom sounds are not found, the program falls back to Windows system beep.
+If custom sounds are not found, the program falls back to silent mode.
