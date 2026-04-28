@@ -128,6 +128,8 @@ class UEController:
                 if idle_hwnd:
                     self.window_manager.minimize(idle_hwnd)
                     print("[INFO] Idle window minimized")
+                else:
+                    print("[WARN] Could not find idle window to minimize")
             
             # Bring tracking to foreground
             tracking_hwnd = self.window_manager.find_window(self._tracking_process.pid)
@@ -136,12 +138,25 @@ class UEController:
                 self.window_manager.bring_to_foreground(tracking_hwnd)
                 print("[INFO] Tracking window brought to foreground")
             else:
-                print("[WARN] Could not find tracking window")
+                print("[WARN] Could not find tracking window, ensuring idle is visible")
+                # Ensure idle is back in foreground if tracking fails to create window
+                self._restore_idle()
             
             return True
         except Exception as e:
             print(f"[ERROR] Failed to launch tracking: {e}")
+            # Ensure idle is visible on failure
+            self._restore_idle()
             return False
+    
+    def _restore_idle(self):
+        """Restore idle window to foreground (VLC protection)."""
+        if self._idle_pid:
+            idle_hwnd = self.window_manager.find_window(self._idle_pid)
+            if idle_hwnd:
+                self.window_manager.maximize(idle_hwnd)
+                self.window_manager.bring_to_foreground(idle_hwnd)
+                print("[INFO] Idle window restored (fallback)")
 
     def _switch_to_idle(self) -> bool:
         """Close tracking and bring idle window back to foreground."""
@@ -285,7 +300,7 @@ class UEController:
         print("[INFO] Cleaning up...")
         # Close tracking if running
         if self._tracking_running:
-            self._close_tracking()
+            self._switch_to_idle()
         self.detection_ui.release()
         self.idle_manager.stop()
 
