@@ -54,25 +54,28 @@ The codebase follows **SOLID principles**:
 ```
 [IDLE] fullscreen ─────────────────────────────────────
    │                                                    │
-   │ runs continuously (VLC video loop)                │
+   │ runs continuously (VLC video loop)                  │
    │                                                    │
    ↓ face detected in zone for threshold seconds        │
 [TRACKING] fullscreen ────────────────────────────────→
-   │ launched, idle minimized                          │
+   │ tracking window restored, idle minimized            │
+   │ (tracking process stays running, just minimized)   │
    │                                                    │
    ↓ face lost for grace period                         │
 [IDLE] returns to foreground ──────────────────────────┘
-   tracking closes, idle maximized
+   tracking window minimized, process stays running
 ```
 
 **Flow:**
 1. **Idle** program (VLC) launches and runs **continuously** in fullscreen
 2. Detection camera monitors for faces within the boundary zone
-3. When face detected for `detection_threshold_seconds` → **Tracking** launches fullscreen
+3. When face detected for `detection_threshold_seconds` → **Tracking** window restored to foreground
 4. Idle is minimized (stays running in background)
-5. When face lost for `face_loss_grace_period` → **Tracking** closes
+5. When face lost for `face_loss_grace_period` → **Tracking** window minimized
 6. Idle returns to foreground fullscreen
 7. Detection UI stays visible throughout
+
+**Key behavior:** Both idle and tracking programs stay running throughout - only window focus is switched.
 
 ### Face Detection Logic
 
