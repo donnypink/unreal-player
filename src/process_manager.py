@@ -76,6 +76,12 @@ class ProcessManager:
             return False
         return self._process.poll() is None
     
+    def get_pid(self) -> Optional[int]:
+        """Get the process ID of the running process."""
+        if self._process is None:
+            return None
+        return self._process.pid
+    
     def ensure_running(self) -> bool:
         """Restart if not running."""
         if not self.is_running():
