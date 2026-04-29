@@ -83,8 +83,8 @@ class DetectionUI:
         fx, fy, fw, fh = face_rect
         bx, by, bw, bh = self.renderer.get_boundary() or (0, 0, 0, 0)
         face_cx, face_cy = fx + fw // 2, fy + fh // 2
-        print(f"[DEBUG] Face at ({fx},{fy},{fw},{fh}), center=({face_cx},{face_cy}), "
-              f"boundary=({bx},{by},{bw},{bh}), in_boundary={result}")
+        # print(f"[DEBUG] Face at ({fx},{fy},{fw},{fh}), center=({face_cx},{face_cy}), "
+            #   f"boundary=({bx},{by},{bw},{bh}), in_boundary={result}")
         return result
     
     def set_drag_callback(self, callback: Callable):
