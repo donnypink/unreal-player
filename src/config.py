@@ -12,7 +12,10 @@ class Config:
         "detection_threshold_seconds": 3.0,
         "face_loss_grace_period": 2.0,
         "audio_enabled": True,
-        "sound_dir": "sounds"
+        "sound_dir": "sounds",
+        # Added window titles for pygetwindow focusing
+        "tracking_title": "Tracking App",
+        "idle_title": "VLC media player"
     }
 
     def __init__(self, config_path: str = "config.json"):
@@ -35,6 +38,14 @@ class Config:
     @property
     def idle_exe(self) -> str:
         return self._data["idle_exe"]
+        
+    @property
+    def tracking_title(self) -> str:
+        return self.get("tracking_title")
+
+    @property
+    def idle_title(self) -> str:
+        return self.get("idle_title")
 
     @property
     def face_detection_confidence(self) -> float:
