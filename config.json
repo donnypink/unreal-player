@@ -8,5 +8,7 @@
     "detection_threshold_seconds": 1.0,
     "face_loss_grace_period": 3.0,
     "audio_enabled": false,
-    "sound_dir": "sounds"
+    "sound_dir": "sounds",
+    "initial_wait_seconds": 18.0,
+    "switch_delay_seconds": 0.0
 }
