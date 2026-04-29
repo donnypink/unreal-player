@@ -32,7 +32,6 @@ class WindowManager:
             print(f"[ERROR] EXE not found: {actual_exe}")
             return None
             
-        # Get the directory of the executable so it can load its local assets properly
         exe_dir = os.path.dirname(os.path.abspath(actual_exe))
         
         try:
@@ -47,26 +46,21 @@ class WindowManager:
             print(f"[ERROR] Failed to launch: {e}")
             return None
 
-    def focus_by_title(self, title_substring: str, exclude_substring: Optional[str] = None, maximize: bool = True) -> bool:
+    def focus_by_title(self, title_substring: str, exclude_substring: Optional[str] = None, maximize: bool = True, delay: float = 0.0) -> bool:
         """Focus window matching title substring with highly reliable Alt-key bypass."""
         try:
             all_matches = gw.getWindowsWithTitle(title_substring)
             
-            # Filter out excluded titles
             if exclude_substring:
                 windows = [w for w in all_matches if exclude_substring.lower() not in w.title.lower()]
             else:
                 windows = all_matches
             
             if not windows:
-                print(f"[WARN] No window found matching '{title_substring}'.")
-                titles = [w.title for w in gw.getAllWindows() if w.title.strip()]
-                print(f"[HINT] Available window titles: {titles[:15]}") # Print first 15 to help debug
                 return False
 
             win = windows[0]
             
-            # Already active and formatted nicely? Early exit
             if win.isActive and not win.isMinimized:
                 if maximize and not win.isMaximized:
                     try: win.maximize()
@@ -79,12 +73,12 @@ class WindowManager:
             
             if win.isMinimized:
                 win.restore()
-                time.sleep(0.2)
+                if delay > 0: time.sleep(delay)
             
             if maximize and not win.isMaximized:
                 try:
                     win.maximize()
-                    time.sleep(0.1)
+                    if delay > 0: time.sleep(delay)
                 except: pass
             
             try:
@@ -92,7 +86,7 @@ class WindowManager:
             except Exception as e:
                 print(f"[WARN] Failed to send activate to '{win.title}': {e}")
             
-            time.sleep(0.1) 
+            if delay > 0: time.sleep(delay)
             if win.isActive:
                 return True
             else:
