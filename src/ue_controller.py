@@ -49,7 +49,7 @@ class UEController:
         self._tracking_running = False
         self._idle_pid: Optional[int] = None
         self._last_face_state = False
-        self._current_mode = "unknown"  # Tracks which window is currently in foreground
+        self._current_mode = "unknown"
 
     def _print_banner(self):
         """Print startup banner."""
@@ -84,12 +84,13 @@ class UEController:
         self.window_manager.minimize_by_title(self.config.idle_title)
         
         focused = False
+        delay = self.config.switch_delay_seconds
         for _ in range(3):
-            if self.window_manager.focus_by_title(self.config.tracking_title, exclude_substring=self.config.idle_title):
+            if self.window_manager.focus_by_title(self.config.tracking_title, exclude_substring=self.config.idle_title, delay=delay):
                 focused = True
                 print("[INFO] Tracking window successfully focused.")
                 break
-            time.sleep(0.5)
+            time.sleep(0.1)
             
         if not focused:
             print("[WARN] Tracking window failed to focus.")
@@ -100,12 +101,13 @@ class UEController:
         self.window_manager.minimize_by_title(self.config.tracking_title, exclude_substring=self.config.idle_title)
         
         focused = False
+        delay = self.config.switch_delay_seconds
         for _ in range(3):
-            if self.window_manager.focus_by_title(self.config.idle_title):
+            if self.window_manager.focus_by_title(self.config.idle_title, delay=delay):
                 focused = True
                 print("[INFO] Idle window successfully focused.")
                 break
-            time.sleep(0.5)
+            time.sleep(0.1)
             
         if not focused:
             print("[WARN] Idle window failed to focus.")
@@ -140,8 +142,9 @@ class UEController:
             print("[ERROR] Tracking process failed to start.")
 
         # 3. Wait for applications to render windows
-        print("[INFO] Waiting 4 seconds for application windows to render fully...")
-        time.sleep(4.0)
+        wait_time = self.config.initial_wait_seconds
+        print(f"[INFO] Waiting {wait_time} seconds for application windows to render fully...")
+        time.sleep(wait_time)
 
         # 4. Open detection UI
         if not self.detection_ui.open():
@@ -163,7 +166,9 @@ class UEController:
                 if self._tracking_running and not self._is_tracking_still_running():
                     print("[WARN] Tracking process ended unexpectedly. Restarting...")
                     self._tracking_process = self.window_manager.launch_nonblocking(self.config.tracking_exe)
-                    time.sleep(2.0) # Wait for window to recreate
+                    
+                    # Wait for it to restart, reusing our configured wait time
+                    time.sleep(self.config.initial_wait_seconds) 
                     
                     # Re-apply window state based on current mode
                     if self._current_mode == "tracking":
