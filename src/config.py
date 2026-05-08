@@ -12,7 +12,11 @@ class Config:
         "detection_threshold_seconds": 3.0,
         "face_loss_grace_period": 2.0,
         "audio_enabled": True,
-        "sound_dir": "sounds"
+        "sound_dir": "sounds",
+        "tracking_title": "Tracking App",
+        "idle_title": "VLC media player",
+        "initial_wait_seconds": 6.0,
+        "switch_delay_seconds": 0.0
     }
 
     def __init__(self, config_path: str = "config.json"):
@@ -35,6 +39,14 @@ class Config:
     @property
     def idle_exe(self) -> str:
         return self._data["idle_exe"]
+        
+    @property
+    def tracking_title(self) -> str:
+        return self.get("tracking_title")
+
+    @property
+    def idle_title(self) -> str:
+        return self.get("idle_title")
 
     @property
     def face_detection_confidence(self) -> float:
@@ -59,3 +71,11 @@ class Config:
     @property
     def face_loss_grace_period(self) -> float:
         return self.get("face_loss_grace_period")
+
+    @property
+    def initial_wait_seconds(self) -> float:
+        return self.get("initial_wait_seconds")
+
+    @property
+    def switch_delay_seconds(self) -> float:
+        return self.get("switch_delay_seconds")

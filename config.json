@@ -1,10 +1,14 @@
 {
     "tracking_exe": "projects/tracking/mediapipe.exe",
     "idle_exe": "\"C:\\Program Files\\VideoLAN\\VLC\\vlc.exe\" --fullscreen --loop --no-video-title-show --no-qt-fs-controller \"projects/idle_video/mediapipe_idle.mp4\"",
+    "tracking_title": "mediapipe (64-bit Development PCD3D_SM6) ",
+    "idle_title": "VLC media player",
     "detection_camera_index": 0,
     "face_detection_confidence": 0.5,
-    "detection_threshold_seconds": 3.0,
-    "face_loss_grace_period": 2.0,
+    "detection_threshold_seconds": 1.0,
+    "face_loss_grace_period": 3.0,
     "audio_enabled": false,
-    "sound_dir": "sounds"
+    "sound_dir": "sounds",
+    "initial_wait_seconds": 18.0,
+    "switch_delay_seconds": 0.0
 }
